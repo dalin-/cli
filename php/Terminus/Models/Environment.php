@@ -634,11 +634,11 @@ class Environment extends TerminusModel {
   }
 
   /**
-   * Remove SSL from an Environment
+   * Remove HTTPS from an Environment
    *
    * @return Workflow
    */
-  public function removeSSL() {
+  public function removeCertificate() {
     $this->request->simpleRequest(
       sprintf(
         'sites/%s/environments/%s/settings',
@@ -659,19 +659,17 @@ class Environment extends TerminusModel {
 
     $workflow_params = array('environment' => $this->get('id'));
     $workflow = $this->site->workflows->create('converge_environment', $workflow_params);
-
     return $workflow;
   }
 
-
   /**
-   * Add/Replace an SSL Certificate on the Environment
+   * Add/Replace an HTTPS Certificate on the Environment
    *
    * @param array $options Certificate data`
    *
    * @return $workflow
    */
-  public function setSSL($options = array()) {
+  public function setCertificate($options = array()) {
     $params = array(
       'cert' => $options['certificate'],
       'key' => $options['private_key']

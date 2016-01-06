@@ -1347,32 +1347,33 @@ class SiteCommand extends TerminusCommand {
       Input::env(array('args' => $assoc_args, 'site' => $site))
     );
 
-    $certificate = trim(Input::string(
+    $certificate = Input::string(
       $assoc_args,
       'certificate',
       'Certificate'
-    ));
-    $private_key = trim(Input::string(
+    );
+    $private_key = Input::string(
       $assoc_args,
       'private_key',
       'RSA Private Key'
-    ));
-    $intermediate_certificate = trim(Input::string(
+    );
+    $intermediate_certificate = Input::string(
       $assoc_args,
       'intermediate_certificate',
       'CA Intermediate Certificate(s) (optional)'
-    ));
-
-    $options = array(
-      'certificate' => $certificate,
-      'private_key' => $intermediate_certificate
     );
 
+    $options = array(
+      'certificate' => trim($certificate),
+      'private_key' => trim($intermediate_certificate)
+    );
+
+    $intermediate_certificate = trim($intermediate_certificate);
     if ($intermediate_certificate != '') {
       $options['intermediate_certificate'] = $intermediate_certificate;
     }
 
-    $workflow = $environment->setSSL($options);
+    $workflow = $environment->setHttps($options);
     $workflow->wait();
     $this->workflowOutput($workflow);
 
