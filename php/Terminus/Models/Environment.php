@@ -634,6 +634,69 @@ class Environment extends TerminusModel {
   }
 
   /**
+   * Remove SSL from an Environment
+   *
+   * @return Workflow
+   */
+  public function removeSSL() {
+    $this->request->simpleRequest(
+      sprintf(
+        'sites/%s/environments/%s/settings',
+        $this->site->get('id'),
+        $this->get('id')
+      ),
+      array('method' => 'put', 'form_params' => array('ssl_enabled' => false))
+    );
+
+    $this->request->simpleRequest(
+      sprintf(
+        'sites/%s/environments/%s/settings',
+        $this->site->get('id'),
+        $this->get('id')
+      ),
+      array('method' => 'put', 'form_params' => array('dedicated_ip' => false))
+    );
+
+    $workflow_params = array('environment' => $this->get('id'));
+    $workflow = $this->site->workflows->create('converge_environment', $workflow_params);
+
+    return $workflow;
+  }
+
+
+  /**
+   * Add/Replace an SSL Certificate on the Environment
+   *
+   * @param array $options Certificate data`
+   *
+   * @return $workflow
+   */
+  public function setSSL($options = array()) {
+    $params = array(
+      'cert' => $options['certificate'],
+      'key' => $options['private_key']
+    );
+
+    if (isset($options['intermediate_certificate'])) {
+      $params['intermediary'] = $options['intermediate_certificate'];
+    }
+
+    $response = $this->request->simpleRequest(
+      sprintf(
+        'sites/%s/environments/%s/add-ssl-cert',
+        $this->site->get('id'),
+        $this->get('id')
+      ),
+      array('method' => 'post', 'form_params' => $params)
+    );
+
+    // The response to the PUT is actually a workflow
+    $workflow_data = $response['data'];
+    $workflow = new Workflow($workflow_data);
+    return $workflow;
+  }
+
+  /**
    * Disable HTTP Basic Access authentication on the web environment
    *
    * @return Workflow

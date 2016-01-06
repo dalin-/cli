@@ -1320,6 +1320,66 @@ class SiteCommand extends TerminusCommand {
   }
 
   /**
+   * Add/replace an SSL Certificate for an environment
+   *
+   * ## OPTIONS
+   *
+   * [--site=<site>]
+   * : name of the site
+   *
+   * [--env=<env>]
+   * : site environment
+   *
+   * [--certificate=<value>]
+   * : Certificate
+   *
+   * [--private_key=<value>]
+   * : RSA Private Key
+   *
+   * [--intermediate_certificate=<value>]
+   * : (optional) CA Intermediate Certificate(s)
+   *
+   * @subcommand set-ssl-certificate
+   */
+  public function setCertificate($args, $assoc_args) {
+    $site        = $this->sites->get(Input::sitename($assoc_args));
+    $environment = $site->environments->get(
+      Input::env(array('args' => $assoc_args, 'site' => $site))
+    );
+
+    $certificate = trim(Input::string(
+      $assoc_args,
+      'certificate',
+      'Certificate'
+    ));
+    $private_key = trim(Input::string(
+      $assoc_args,
+      'private_key',
+      'RSA Private Key'
+    ));
+    $intermediate_certificate = trim(Input::string(
+      $assoc_args,
+      'intermediate_certificate',
+      'CA Intermediate Certificate(s) (optional)'
+    ));
+
+    $options = array(
+      'certificate' => $certificate,
+      'private_key' => $intermediate_certificate
+    );
+
+    if ($intermediate_certificate != '') {
+      $options['intermediate_certificate'] = $intermediate_certificate;
+    }
+
+    $workflow = $environment->setSSL($options);
+    $workflow->wait();
+    $this->workflowOutput($workflow);
+
+    return true;
+  }
+
+  /**
    * Change connection mode between SFTP and Git
    *
    * ## OPTIONS

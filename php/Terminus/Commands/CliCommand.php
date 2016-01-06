@@ -78,9 +78,10 @@ class CliCommand extends TerminusCommand {
   public function console($args, $assoc_args) {
     $user = new User();
     if (isset($assoc_args['site'])) {
-      $sitename = $assoc_args['site'];
-      $site_id  = $this->sitesCache->findId($sitename);
-      $site     = new Site($site_id);
+      $sitename  = $assoc_args['site'];
+      $site_id   = $this->sitesCache->findId($sitename);
+      $site_data = (object)array('id' => $site_id);
+      $site      = new Site($site_data);
     }
 
     eval(\Psy\sh());
