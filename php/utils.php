@@ -229,6 +229,20 @@ function loadAllCommands() {
 
     include_once "$cmd_dir/$filename";
   }
+
+  $home = getenv('HOME');
+  $plugins_dir = "$home/terminus/plugins";
+
+  if (file_exists($plugins_dir)) {
+    $iterator = new \DirectoryIterator($plugins_dir);
+    foreach ($iterator as $dirname) {
+      $file = "$plugins_dir/$dirname/$dirname.php";
+      if (file_exists($file)) {
+        include_once $file;
+      }
+    }
+  }
+
 }
 
 /**
@@ -275,6 +289,19 @@ function loadCommand($name) {
   if (is_readable($path)) {
     include_once $path;
   }
+
+  $home = getenv('HOME');
+  $path = sprintf(
+    '%s/terminus/plugins/%s/%s.php',
+    $home,
+    makeCamelCase($name),
+    makeCamelCase($name)
+  );
+
+  if (is_readable($path)) {
+    include_once $path;
+  }
+
 }
 
 /**

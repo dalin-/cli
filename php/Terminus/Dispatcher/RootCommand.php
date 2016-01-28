@@ -75,6 +75,7 @@ class RootCommand extends CompositeCommand {
   function getSubcommands() {
     Utils\loadAllCommands();
     $subcommands = parent::getSubcommands();
+    var_dump($subcommands['hello']);
     return $subcommands;
   }
 
